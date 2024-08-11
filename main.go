@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -25,6 +26,19 @@ type Director struct {
 
 // creating a slice to store our movies in
 var movies []Movie
+
+// this function is a handler for GET requests to the /movies endpoint of the
+// server. it takes in w, a ResponseWriter, which allows us to directly interact
+// with the HTTP response, and it also takes in r, a pointer to a request.
+func getMovies(w http.ResponseWriter, r *http.Request) {
+	// this sets the "Content-Type" header of the HTTP response to JSON format.
+	w.Header().Set("Content-Type", "application/json")
+
+	// json.NewEncoder is an object that writes data that is in JSON format to w.
+	// .Encode(movies) actually marshals the movies slice into JSON format and
+	// then writes it to w.
+	json.NewEncoder(w).Encode(movies)
+}
 
 func main() {
 	// creating a mux.Router instance. this Router will allow us to create
