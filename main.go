@@ -46,6 +46,9 @@ func getMovies(w http.ResponseWriter, r *http.Request) {
 func deleteMovie(w http.ResponseWriter, r *http.Request) {
 
 	// this sets the "Content-Type" header of the HTTP response to JSON format.
+	// NOTE: although this line is not particularly useful since we do not
+	// actually write anything to the HTTP response in this function, leaving
+	// it here is good practice and maintains code consistency.
 	w.Header().Set("Content-Type", "application/json")
 
 	// mux.Vars(r) takes in a Request and returns any URL variables in the
