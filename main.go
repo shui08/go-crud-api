@@ -31,6 +31,7 @@ var movies []Movie
 // server. it takes in w, a ResponseWriter, which allows us to directly interact
 // with the HTTP response, and it also takes in r, a pointer to a request.
 func getMovies(w http.ResponseWriter, r *http.Request) {
+
 	// this sets the "Content-Type" header of the HTTP response to JSON format.
 	w.Header().Set("Content-Type", "application/json")
 
@@ -38,6 +39,52 @@ func getMovies(w http.ResponseWriter, r *http.Request) {
 	// .Encode(movies) actually marshals the movies slice into JSON format and
 	// then writes it to w.
 	json.NewEncoder(w).Encode(movies)
+}
+
+// this function is a handler for DELETE requests to the /movies/{id} endpoint
+// of the server.
+func deleteMovie(w http.ResponseWriter, r *http.Request) {
+
+	// this sets the "Content-Type" header of the HTTP response to JSON format.
+	w.Header().Set("Content-Type", "application/json")
+
+	// mux.Vars(r) takes in a Request and returns any URL variables in the
+	// route pattern as a map. for this specific request, we would extract
+	// whatever the client put in for {id} in the "/movies/{id}" route pattern.
+	params := mux.Vars(r)
+
+	// iterate through the slice of movies. if the movie at `i`'s ID has the
+	// same contents as the id key in params, we will remove that movie from
+	// `movies` and break from the for loop.
+	for i := 0; i < len(movies); i++ {
+		if movies[i].ID == params["id"] {
+			movies = append(movies[:i], movies[i+1:]...)
+			break
+		}
+	}
+}
+
+// this function is a handler for GET requests to the /movies/{id} endpoint
+// of the server.
+func getMovie(w http.ResponseWriter, r *http.Request) {
+
+	// this sets the "Content-Type" header of the HTTP response to JSON format.
+	w.Header().Set("Content-Type", "application/json")
+
+	// mux.Vars(r) takes in a Request and returns any URL variables in the
+	// route pattern as a map. for this specific request, we would extract
+	// whatever the client put in for {id} in the "/movies/{id}" route pattern.
+	params := mux.Vars(r)
+
+	// iterate through the slice of movies. if the movie at `i`'s ID has the
+	// same contents as the id key in params, we will write that movie in JSON
+	// format to the HTTP response and return.
+	for i := 0; i < len(movies); i++ {
+		if movies[i].ID == params["id"] {
+			json.NewEncoder(w).Encode(movies[i])
+			return
+		}
+	}
 }
 
 func main() {
