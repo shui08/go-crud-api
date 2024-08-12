@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -85,6 +87,57 @@ func getMovie(w http.ResponseWriter, r *http.Request) {
 	for i := 0; i < len(movies); i++ {
 		if movies[i].ID == params["id"] {
 			json.NewEncoder(w).Encode(movies[i])
+			return
+		}
+	}
+}
+
+// this function is a handler for POST requests to the /movies endpoint of the
+// server. it will create a new movie and then send it back as a JSON response.
+func createMovie(w http.ResponseWriter, r *http.Request) {
+
+	// this sets the "Content-Type" header of the HTTP response to JSON format.
+	w.Header().Set("Content-Type", "application/json")
+
+	// declare a movie variable. then we unmarshal the movie data from the
+	// request's body and store it in the value pointed to by `movie`
+	var movie Movie
+	json.NewDecoder(r.Body).Decode(&movie)
+
+	// generate a random integer from 0 - 999999, convert it to a string, and
+	// set the movie's ID to it.
+	movie.ID = strconv.Itoa(rand.Intn(1000000))
+
+	// update `movies` to include the newly created movie
+	movies = append(movies, movie)
+
+	// marshal the movie back into JSON and write it to the HTTP response
+	json.NewEncoder(w).Encode(movie)
+}
+
+// this function is a handler for PUT requests to the /movies/{id} endpoint of
+// the server. it allows us to update the contents of a movie.
+func updateMovie(w http.ResponseWriter, r *http.Request) {
+
+	// this sets the "Content-Type" header of the HTTP response to JSON format.
+	w.Header().Set("Content-Type", "application/json")
+
+	// store the movie id specified in the route pattern as a key value pair
+	params := mux.Vars(r)
+
+	// iterate through `movies`. if a movie ID matches the ID extracted from
+	// the route pattern, remove the existing version of that movie from
+	// `movies`. then create a new movie with the updated information (see
+	// createMovie) and append it to `movies`. write the updated movie in JSON
+	// format to w and return.
+	for i := 0; i < len(movies); i++ {
+		if movies[i].ID == params["id"] {
+			movies = append(movies[:i], movies[i+1:]...)
+			var movie Movie
+			json.NewDecoder(r.Body).Decode(&movie)
+			movie.ID = params["id"]
+			movies = append(movies, movie)
+			json.NewEncoder(w).Encode(movie)
 			return
 		}
 	}
